@@ -116,6 +116,10 @@ Route::prefix('kepala')->name('kepala.')->middleware(['web'])->group(function ()
     Route::get('/monitoring-penilaian', [KepalaController::class, 'monitoringPenilaian'])->name('monitoring-penilaian');
     Route::get('/komentar-umum', [KepalaController::class, 'komentarUmum'])->name('komentar-umum');
     Route::post('/komentar-umum/simpan', [KepalaController::class, 'simpanKomentarUmum'])->name('komentar-umum.simpan');
+    
+    Route::get('/penilaian-kasi', [KepalaController::class, 'penilaianKasi'])->name('penilaian-kasi');
+    Route::post('/penilaian-kasi/simpan', [KepalaController::class, 'simpanPenilaianKasi'])->name('penilaian-kasi.simpan');
+    
     Route::get('/export/pdf', [KepalaController::class, 'exportPDF'])->name('export.pdf');
     Route::get('/export/excel', [KepalaController::class, 'exportExcel'])->name('export.excel');
     Route::get('/profil', [KepalaController::class, 'profil'])->name('profil');

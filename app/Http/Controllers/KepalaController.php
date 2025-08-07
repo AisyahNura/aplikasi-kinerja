@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Comment;
 use App\Models\RealisasiKinerja;
 use App\Models\KomentarKepala;
+use App\Models\PenilaianKepala;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -161,8 +162,8 @@ class KepalaController extends Controller
         $triwulan = $request->get('triwulan', $this->getCurrentQuarter());
         $kasiId = $request->get('kasi_id');
 
-        // Query penilaian dengan filter
-        $query = Comment::with(['realisasiKinerja.task', 'createdBy', 'user'])
+        // Query penilaian dengan filter dan relasi
+        $query = Comment::with(['realisasiKinerja.task', 'createdBy', 'user.kasi'])
                        ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
                            $q->where('tahun', $tahun)
                              ->where('triwulan', $triwulan);
@@ -175,18 +176,46 @@ class KepalaController extends Controller
         $penilaian = $query->orderBy('created_at', 'desc')
                           ->paginate(15);
 
-        // Rata-rata nilai per staff
-        $rataRataStaff = Comment::with('user')
+        // Rata-rata nilai per staff dengan informasi atasan
+        $rataRataStaff = Comment::with(['user.kasi'])
                                ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
                                    $q->where('tahun', $tahun)
                                      ->where('triwulan', $triwulan);
                                })
-                               ->select('user_id', DB::raw('AVG(rating) as rata_rata'), DB::raw('COUNT(*) as total_penilaian'))
+                               ->select('user_id', \DB::raw('AVG(rating) as rata_rata'), \DB::raw('COUNT(*) as total_penilaian'))
                                ->groupBy('user_id')
                                ->get();
 
-        // Data untuk filter
-        $kasiList = User::where('role', 'kasi')->get();
+        // Data untuk filter - hanya kasi yang punya staff
+        $kasiList = User::where('role', 'kasi')->with('staffs')->get()->filter(function($kasi) {
+            return $kasi->staffs->count() > 0;
+        });
+
+        // Statistik per kasi
+        $statistikKasi = [];
+        foreach ($kasiList as $kasi) {
+            $staffIds = $kasi->staffs->pluck('id');
+            $totalPenilaian = Comment::whereIn('user_id', $staffIds)
+                                   ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
+                                       $q->where('tahun', $tahun)
+                                         ->where('triwulan', $triwulan);
+                                   })
+                                   ->count();
+            
+            $rataRata = Comment::whereIn('user_id', $staffIds)
+                              ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
+                                  $q->where('tahun', $tahun)
+                                    ->where('triwulan', $triwulan);
+                              })
+                              ->avg('rating');
+
+            $statistikKasi[] = [
+                'kasi' => $kasi,
+                'total_staff' => $kasi->staffs->count(),
+                'total_penilaian' => $totalPenilaian,
+                'rata_rata' => $rataRata ? round($rataRata, 2) : 0
+            ];
+        }
 
         return view('kepala.monitoring-penilaian', compact(
             'penilaian',
@@ -194,7 +223,8 @@ class KepalaController extends Controller
             'tahun',
             'triwulan',
             'kasiId',
-            'kasiList'
+            'kasiList',
+            'statistikKasi'
         ));
     }
 
@@ -358,6 +388,106 @@ class KepalaController extends Controller
         
         return redirect('/login/kepala')
                        ->with('success', 'Anda berhasil logout.');
+    }
+
+    /**
+     * Tampilkan halaman penilaian Kasi
+     */
+    public function penilaianKasi(Request $request)
+    {
+        if (!session('kepala_logged_in')) {
+            return redirect('/login/kepala');
+        }
+
+        $tahun = $request->get('tahun', date('Y'));
+        $triwulan = $request->get('triwulan', $this->getCurrentQuarter());
+
+        // Ambil semua Kasi
+        $kasiList = User::where('role', 'kasi')->get();
+
+        // Ambil penilaian yang sudah ada untuk periode ini
+        $penilaianExisting = PenilaianKepala::periode($tahun, $triwulan)
+                                           ->with('kasi')
+                                           ->get()
+                                           ->keyBy('kasi_id');
+
+        // Statistik penilaian Kasi
+        $statistikKasi = [];
+        foreach ($kasiList as $kasi) {
+            $totalStaff = $kasi->staffs()->count();
+            $totalPenilaianStaff = Comment::whereIn('user_id', $kasi->staffs()->pluck('id'))
+                                         ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
+                                             $q->where('tahun', $tahun)
+                                               ->where('triwulan', $triwulan);
+                                         })
+                                         ->count();
+            
+            $rataRataStaff = Comment::whereIn('user_id', $kasi->staffs()->pluck('id'))
+                                   ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
+                                       $q->where('tahun', $tahun)
+                                         ->where('triwulan', $triwulan);
+                                   })
+                                   ->avg('rating');
+
+            $statistikKasi[] = [
+                'kasi' => $kasi,
+                'total_staff' => $totalStaff,
+                'total_penilaian_staff' => $totalPenilaianStaff,
+                'rata_rata_staff' => $rataRataStaff ? round($rataRataStaff, 2) : 0,
+                'sudah_dinilai' => $penilaianExisting->has($kasi->id),
+                'penilaian' => $penilaianExisting->get($kasi->id)
+            ];
+        }
+
+        return view('kepala.penilaian-kasi', compact(
+            'kasiList',
+            'statistikKasi',
+            'tahun',
+            'triwulan'
+        ));
+    }
+
+    /**
+     * Simpan penilaian Kasi
+     */
+    public function simpanPenilaianKasi(Request $request)
+    {
+        if (!session('kepala_logged_in')) {
+            return redirect('/login/kepala');
+        }
+
+        $request->validate([
+            'kasi_id' => 'required|exists:users,id',
+            'tahun' => 'required|integer',
+            'triwulan' => 'required|string',
+            'rating' => 'required|integer|in:1,2,3',
+            'komentar' => 'required|string|max:1000'
+        ]);
+
+        // Validasi bahwa user yang dinilai adalah Kasi
+        $kasi = User::find($request->kasi_id);
+        if (!$kasi || $kasi->role !== 'kasi') {
+            return back()->withErrors(['kasi_id' => 'User yang dipilih bukan Kasi.']);
+        }
+
+        $kepalaId = session('kepala_id');
+
+        // Update atau create penilaian
+        $penilaian = PenilaianKepala::updateOrCreate(
+            [
+                'kasi_id' => $request->kasi_id,
+                'tahun' => $request->tahun,
+                'triwulan' => $request->triwulan
+            ],
+            [
+                'rating' => $request->rating,
+                'komentar' => $request->komentar,
+                'created_by' => $kepalaId
+            ]
+        );
+
+        return redirect()->route('kepala.penilaian-kasi')
+                        ->with('success', 'Penilaian Kasi berhasil disimpan!');
     }
 
     /**

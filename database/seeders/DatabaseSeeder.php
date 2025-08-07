@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // Call UsersTableSeeder first to create users
         $this->call([
             UsersTableSeeder::class,
+            RealisasiKinerjaSeeder::class,
         ]);
 
         // Create sample tasks

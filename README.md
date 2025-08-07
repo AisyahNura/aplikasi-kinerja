@@ -1,66 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Aplikasi Kinerja - Sistem Penilaian Kinerja Pegawai
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk mengelola dan menilai kinerja pegawai dengan sistem hierarki Kepala Kantor → Kasi → Staff.
 
-## About Laravel
+## Teknologi yang Digunakan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend**: Laravel 12.x
+- **Frontend**: Blade Templates, Tailwind CSS
+- **Database**: MySQL
+- **JavaScript**: Vanilla JS (ES6+)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fitur yang Tersedia
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Staff
+- Dashboard dengan statistik kinerja
+- Input realisasi kinerja
+- Melihat komentar dari atasan dengan sistem rating 3-level
+- Profil staff dan atasan
 
-## Learning Laravel
+### Kasi (Kepala Seksi)
+- Dashboard dengan statistik staff
+- Penilaian kinerja staff dengan sistem rating 3-level
+- Monitoring realisasi kinerja staff
+- Profil Kasi dan staff yang dibawahi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Kepala Kantor
+- Dashboard dengan statistik umum
+- Data pegawai (Kasi dan Staff)
+- Monitoring penilaian kinerja
+- **Penilaian Kasi** - Memberikan penilaian langsung kepada Kasi
+- Komentar umum untuk periode tertentu
+- Export laporan (PDF/Excel)
+- Profil Kepala Kantor
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Sistem Rating
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Aplikasi menggunakan sistem rating 3-level:
+- **1 Bintang**: Di Bawah Ekspektasi (Merah)
+- **2 Bintang**: Sesuai Ekspektasi (Kuning)  
+- **3 Bintang**: Melebihi Ekspektasi (Hijau)
 
-## Laravel Sponsors
+## Struktur Database
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Tabel Utama
+- `users` - Data pegawai (Kepala, Kasi, Staff)
+- `tasks` - Daftar tugas
+- `targets` - Target kinerja per staff
+- `realisasi_kinerja` - Realisasi kinerja staff
+- `comments` - Komentar/penilaian dari Kasi ke Staff
+- `komentar_kepala` - Komentar umum dari Kepala Kantor
+- `penilaian_kepala` - Penilaian Kepala Kantor ke Kasi
 
-### Premium Partners
+### Relasi
+- Kepala Kantor → Kasi (melalui penilaian_kepala)
+- Kasi → Staff (melalui kasi_id di users)
+- Kasi → Staff (melalui comments)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Instalasi
 
-## Contributing
+1. Clone repository
+```bash
+git clone <repository-url>
+cd aplikasi-kinerja
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. Install dependencies
+```bash
+composer install
+npm install
+```
 
-## Code of Conduct
+3. Setup environment
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Konfigurasi database di `.env`
 
-## Security Vulnerabilities
+5. Jalankan migration dan seeder
+```bash
+php artisan migrate:fresh --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. Jalankan server
+```bash
+php artisan serve
+```
+
+## Data Sample
+
+Setelah menjalankan seeder, aplikasi akan memiliki data sample:
+
+### Users
+- **Kepala Kantor**: kepala.kantor@kemenag.go.id (password: 12345678)
+- **Kasi 1**: kasi.pendma@kemenag.go.id (password: 12345678)
+- **Kasi 2**: kasi.haji@kemenag.go.id (password: 12345678)
+- **Staff**: 3 staff dengan relasi ke Kasi
+
+### Demo Login
+- Staff: `/staff/demo`
+- Kasi: `/kasi/demo`
+- Kepala: `/kepala/demo`
+
+## Dokumentasi Fitur
+
+- [Fitur Komentar Staff](README_KOMENTAR_FEATURE.md)
+- [Fitur Penilaian Kasi](README_PENILAIAN_KASI.md)
+
+## Struktur File Penting
+
+### Controllers
+- `StaffController.php` - Logic untuk Staff
+- `KasiController.php` - Logic untuk Kasi
+- `KepalaController.php` - Logic untuk Kepala Kantor
+
+### Models
+- `User.php` - Model user dengan relasi Kasi-Staff
+- `Comment.php` - Model komentar/penilaian
+- `PenilaianKepala.php` - Model penilaian Kepala ke Kasi
+- `RealisasiKinerja.php` - Model realisasi kinerja
+
+### Views
+- `staff/` - Views untuk Staff
+- `kasi/` - Views untuk Kasi
+- `kepala/` - Views untuk Kepala Kantor
+- `layouts/` - Layout templates
+
+## Testing
+
+Untuk testing fitur:
+1. Akses demo login sesuai role
+2. Navigasi melalui menu sidebar
+3. Test fitur penilaian dan komentar
+4. Verifikasi relasi Kasi-Staff
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License
