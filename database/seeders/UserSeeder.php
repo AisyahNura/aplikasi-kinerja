@@ -13,56 +13,52 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Staff users
+        // Kepala users
         User::create([
-            'name' => 'Andi Saputra',
-            'email' => 'andi.saputra@kemenag.go.id',
-            'password' => Hash::make('197801252011011006'), // NIP as password
-            'role' => 'staff',
-        ]);
-
-        User::create([
-            'name' => 'Budi Santoso',
-            'email' => 'budi.santoso@kemenag.go.id',
-            'password' => Hash::make('198503152010011001'), // NIP as password
-            'role' => 'staff',
-        ]);
-
-        User::create([
-            'name' => 'Citra Dewi',
-            'email' => 'citra.dewi@kemenag.go.id',
-            'password' => Hash::make('199004202012012002'), // NIP as password
-            'role' => 'staff',
+            'name' => 'Dr. MUHAJIR, S.Pd., M.Ag',
+            'email' => 'muhajir.kepala@kemenag.go.id',
+            'password' => Hash::make('197304131999031003'),
+            'nip' => '197304131999031003',
+            'jabatan' => 'Kepala Kantor Kementerian Agama',
+            'role' => 'kepala',
         ]);
 
         // Kasi users
         User::create([
-            'name' => 'Dr. Ahmad Kasi',
+            'name' => 'Ahmad Kasi',
             'email' => 'ahmad.kasi@kemenag.go.id',
-            'password' => Hash::make('197504151998031001'), // NIP as password
+            'password' => Hash::make('197504151998031001'),
+            'nip' => '197504151998031001',
+            'jabatan' => 'Kasi Pendidikan Madrasah',
             'role' => 'kasi',
         ]);
 
         User::create([
             'name' => 'Siti Kasi',
             'email' => 'siti.kasi@kemenag.go.id',
-            'password' => Hash::make('197812202000032001'), // NIP as password
+            'password' => Hash::make('197812202000032001'),
+            'nip' => '197812202000032001',
+            'jabatan' => 'Kasi Haji dan Umrah',
             'role' => 'kasi',
         ]);
 
-        // Kepala users
+        // Staff users
         User::create([
-            'name' => 'Dr. MUHAJIR, S.Pd., M.Ag',
-            'email' => 'muhajir.kepala@kemenag.go.id',
-            'password' => Hash::make('197304131999031003'), // NIP as password
-            'role' => 'kepala',
+            'name' => 'Andi Saputra',
+            'email' => 'andi.saputra@kemenag.go.id',
+            'password' => Hash::make('197801252011011006'),
+            'nip' => '197801252011011006',
+            'jabatan' => 'Staff Pendidikan',
+            'role' => 'staff',
         ]);
 
         User::create([
-            'name' => 'Ir. Kepala Kantor',
-            'email' => 'kepala.kantor@kemenag.go.id',
-            'password' => Hash::make('197001011990031001'), // NIP as password
-            'role' => 'kepala',
+            'name' => 'Budi Santoso',
+            'email' => 'budi.santoso@kemenag.go.id',
+            'password' => Hash::make('198503152010011001'),
+            'nip' => '198503152010011001',
+            'jabatan' => 'Staff Madrasah',
+            'role' => 'staff',
         ]);
     }
 } 

@@ -65,7 +65,9 @@ class User extends Authenticatable
      */
     public function staffs()
     {
-        return $this->hasMany(User::class, 'kasi_id')->where('role', 'staff');
+        return $this->hasMany(User::class, 'kasi_id')
+                    ->where('role', 'staff')
+                    ->where('status', 'aktif');
     }
 
     /**

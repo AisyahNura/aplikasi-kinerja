@@ -61,67 +61,67 @@
 }
 </style>
 
-<div class="p-6">
+<div class="p-3 sm:p-6">
     <div class="max-w-7xl mx-auto">
         <!-- Header E-Kinerja Style -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex items-center justify-between">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 sm:mb-6">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-xl font-bold text-gray-900">E-KINERJA</h1>
-                            <p class="text-sm text-gray-600">Sistem Informasi Kinerja Pegawai</p>
+                            <h1 class="text-lg sm:text-xl font-bold text-gray-900">E-KINERJA</h1>
+                            <p class="text-xs sm:text-sm text-gray-600">Sistem Informasi Kinerja Pegawai</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900">PERIODE PENILAIAN</p>
-                        <p class="text-sm text-gray-600">1 Januari s.d. 31 Desember Tahun {{ date('Y') }}</p>
+                    <div class="text-left sm:text-right">
+                        <p class="text-xs sm:text-sm font-medium text-gray-900">PERIODE PENILAIAN</p>
+                        <p class="text-xs sm:text-sm text-gray-600">1 Januari s.d. 31 Desember Tahun {{ date('Y') }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Dashboard STAFF</h1>
-            <p class="text-gray-600">Ringkasan kinerja dan aktivitas terbaru</p>
+        <div class="mb-4 sm:mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">Dashboard STAFF</h1>
+            <p class="text-sm sm:text-base text-gray-600">Ringkasan kinerja dan aktivitas terbaru</p>
         </div>
 
         <!-- Profil Staff dan Atasan -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
             <!-- Profil Staff -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
-                    PEGAWAI
+                    PEGAWAI YANG DINILAI
                 </h3>
-                <div class="space-y-3">
+                <div class="space-y-2 sm:space-y-3">
                     <div>
                         <label class="text-xs font-medium text-gray-500 uppercase">NAMA</label>
-                        <p class="text-sm font-medium text-gray-900">{{ $staffName }}</p>
+                        <p class="text-xs sm:text-sm font-medium text-gray-900">{{ $staffName }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 uppercase">NIP</label>
-                        <p class="text-sm text-gray-900">{{ $staffNip }}</p>
+                        <p class="text-xs sm:text-sm text-gray-900">{{ $staffNip }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 uppercase">PANGKAT / GOL RUANG</label>
-                        <p class="text-sm text-gray-900">{{ $staffPangkat }}</p>
+                        <p class="text-xs sm:text-sm text-gray-900">{{ $staffPangkat }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 uppercase">JABATAN</label>
-                        <p class="text-sm text-gray-900">{{ $staffJabatan }}</p>
+                        <p class="text-xs sm:text-sm text-gray-900">{{ $staffJabatan }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 uppercase">UNIT KERJA</label>
-                        <p class="text-sm text-gray-900">{{ $staffUnitKerja }}</p>
+                        <p class="text-xs sm:text-sm text-gray-900">{{ $staffUnitKerja }}</p>
                     </div>
                 </div>
             </div>
@@ -327,72 +327,119 @@
 
             <!-- Daftar Komentar -->
             @if($filteredComments->count() > 0)
-                <div class="space-y-4">
-                    @foreach($filteredComments->take(3) as $comment)
-                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                            <!-- Rating Bintang -->
-                            <div class="flex items-center mb-3">
-                                <div class="rating-3">
-                                    @for($i = 1; $i <= 3; $i++)
-                                        @if($i <= $comment->rating)
-                                            <span class="rating-star rating-{{ $comment->rating }}">⭐</span>
-                                        @else
-                                            <span class="rating-star empty">☆</span>
-                                        @endif
-                                    @endfor
+                <div class="space-y-6">
+                    @foreach($filteredComments as $comment)
+                        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
+                            <!-- Header Komentar -->
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Avatar -->
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    
+                                    <!-- Nama dan Rating -->
+                                    <div>
+                                        <h4 class="text-blue-600 font-semibold text-sm">{{ $comment->createdBy->name }}</h4>
+                                        <div class="flex items-center mt-1">
+                                            <div class="flex items-center space-x-1">
+                                                @for($i = 1; $i <= 3; $i++)
+                                                    @if($i <= $comment->rating)
+                                                        <svg class="w-4 h-4 text-blue-500 fill-current" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                        </svg>
+                                                    @else
+                                                        <svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                        </svg>
+                                                    @endif
+                                                @endfor
+                                            </div>
+                                            @php
+                                                $ratingLabel = '';
+                                                switch($comment->rating) {
+                                                    case 1:
+                                                        $ratingLabel = 'DI BAWAH EKSPEKTASI';
+                                                        break;
+                                                    case 2:
+                                                        $ratingLabel = 'SESUAI EKSPEKTASI';
+                                                        break;
+                                                    case 3:
+                                                        $ratingLabel = 'MELEBIHI EKSPEKTASI';
+                                                        break;
+                                                }
+                                            @endphp
+                                            <span class="ml-2 text-blue-600 font-bold text-xs">{{ $ratingLabel }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                @php
-                                    $ratingLabel = '';
-                                    $ratingClass = '';
-                                    switch($comment->rating) {
-                                        case 1:
-                                            $ratingLabel = 'Di Bawah Ekspektasi';
-                                            $ratingClass = 'rating-label-1';
-                                            break;
-                                        case 2:
-                                            $ratingLabel = 'Sesuai Ekspektasi';
-                                            $ratingClass = 'rating-label-2';
-                                            break;
-                                        case 3:
-                                            $ratingLabel = 'Melebihi Ekspektasi';
-                                            $ratingClass = 'rating-label-3';
-                                            break;
-                                    }
-                                @endphp
-                                <span class="rating-label {{ $ratingClass }}">{{ $ratingLabel }}</span>
+                                
+                                <!-- Tanggal -->
+                                <span class="text-xs text-gray-500">{{ $comment->created_at->format('d M Y H:i') }}</span>
                             </div>
 
-                            <!-- Teks Komentar -->
-                            <div class="mb-3">
+                            <!-- Isi Komentar -->
+                            <div class="bg-gray-50 rounded-lg p-4">
                                 <p class="text-sm text-gray-700 leading-relaxed">{{ $comment->komentar }}</p>
                             </div>
 
-                            <!-- Info Kasi dan Tanggal -->
-                            <div class="flex items-center justify-between text-xs text-gray-500">
-                                <span>{{ $comment->createdBy->name }} ({{ ucfirst($comment->createdBy->role) }})</span>
-                                <span>{{ $comment->created_at->format('d M Y H:i') }}</span>
-                            </div>
+                            <!-- Tugas yang dikomentari -->
+                            @if(isset($comment->realisasiKinerja->task))
+                                <div class="mt-3 text-xs text-gray-500">
+                                    <span class="font-medium">Tugas:</span> {{ $comment->realisasiKinerja->task->nama_tugas }}
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>
-
-                @if($filteredComments->count() > 3)
-                    <div class="mt-4 text-center">
-                        <a href="{{ route('staff.komentar') }}?tahun={{ request('tahun', date('Y')) }}&triwulan={{ request('triwulan', $currentQuarter) }}" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors duration-200">
-                            Lihat {{ $filteredComments->count() - 3 }} komentar lainnya
-                        </a>
-                    </div>
-                @endif
             @else
-                <div class="text-center py-8">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                     </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada komentar</h3>
-                    <p class="mt-1 text-sm text-gray-500">Belum ada komentar dari atasan untuk periode yang dipilih.</p>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">Belum ada komentar</h3>
+                    <p class="mt-2 text-sm text-gray-500">Belum ada komentar dari atasan untuk periode yang dipilih.</p>
                 </div>
             @endif
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mt-6 sm:mt-8">
+            <a href="{{ route('staff.kinerja-saya') }}" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-3 sm:ml-4">
+                        <h3 class="text-sm sm:text-lg font-medium text-gray-900">Kinerja Saya</h3>
+                        <p class="text-xs sm:text-sm text-gray-500">Lihat kinerja dan realisasi</p>
+                    </div>
+                </div>
+            </a>
+
+
+
+            <a href="{{ route('staff.komentar') }}" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-3 sm:ml-4">
+                        <h3 class="text-sm sm:text-lg font-medium text-gray-900">Komentar</h3>
+                        <p class="text-xs sm:text-sm text-gray-500">Lihat komentar dari atasan</p>
+                    </div>
+                </div>
+            </a>
         </div>
         </div>
     </div>

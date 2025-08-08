@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RealisasiKinerja;
 use App\Models\User;
 use App\Models\Comment;
+use App\Models\PenilaianStaff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -125,205 +126,145 @@ class KasiController extends Controller
                            ->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        $tahun = request('tahun', 2025);
-        $triwulan = request('triwulan', 'I');
+        // Get current year and quarter
+        $currentYear = date('Y');
+        $currentMonth = date('n');
+        $currentQuarter = ceil($currentMonth / 3);
+        $quarterMap = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV'];
+        
+        // Get requested year and quarter, default to current
+        $tahun = request('tahun', $currentYear);
+        $triwulan = request('triwulan', $quarterMap[$currentQuarter]);
+
         $kasiId = session('kasi_id');
 
-        // Get current Kasi data
-        $kasi = User::with('staffs')->find($kasiId);
-        
-        if (!$kasi || !$kasi->isKasi()) {
-            return redirect('/login/kasi')
-                           ->with('error', 'Akses tidak valid.');
-        }
-
-        // Ambil ID staff yang di bawah kasi ini
-        $staffIds = $kasi->staffs()->pluck('id');
-
-        // Ambil data realisasi kinerja yang sudah dikirim (status: dikirim)
-        // Hanya dari staff yang di bawah kasi ini
         try {
-            $realisasiKinerja = RealisasiKinerja::with(['user', 'task'])
-                ->where('status', 'dikirim')
+            // Get current Kasi data with their staff
+            $kasi = User::with(['staffs' => function($query) {
+                $query->select('users.*')
+                      ->where('status', 'aktif')
+                      ->orderBy('name');
+            }])->find($kasiId);
+            
+            if (!$kasi || !$kasi->isKasi()) {
+                if (request()->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Akses tidak valid'
+                    ], 403);
+                }
+                return redirect('/login/kasi')
+                               ->with('error', 'Akses tidak valid.');
+            }
+
+            // Get all staff assigned to this Kasi
+            $staffList = $kasi->staffs;
+            
+            \Log::info('Kasi staff data:', [
+                'kasi_id' => $kasiId,
+                'kasi_name' => $kasi->name,
+                'staff_count' => $staffList->count(),
+                'staff_ids' => $staffList->pluck('id')->toArray(),
+                'staff_names' => $staffList->pluck('name')->toArray()
+            ]);
+            
+            if ($staffList->isEmpty()) {
+                if (request()->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tidak ada staff yang ditugaskan'
+                    ]);
+                }
+                return view('kasi.penilaian', [
+                    'staffList' => collect(),
+                    'penilaian' => collect(),
+                    'tahun' => $tahun,
+                    'triwulan' => $triwulan
+                ]);
+            }
+
+            // Get existing penilaian for this period
+            $penilaian = PenilaianStaff::where('kasi_id', $kasiId)
                 ->where('tahun', $tahun)
                 ->where('triwulan', $triwulan)
-                ->whereIn('user_id', $staffIds) // Filter hanya staff di bawah kasi ini
-                ->get();
-                
-            Log::info('RealisasiKinerja query result:', [
-                'count' => $realisasiKinerja->count(),
-                'tahun' => $tahun,
-                'triwulan' => $triwulan,
-                'kasi_id' => $kasiId,
-                'staff_ids' => $staffIds->toArray()
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error fetching RealisasiKinerja:', [
-                'error' => $e->getMessage(),
-                'tahun' => $tahun,
-                'triwulan' => $triwulan
-            ]);
-            $realisasiKinerja = collect([]);
-        }
+                ->get()
+                ->keyBy('staff_id');
 
-        // Ambil komentar yang sudah ada untuk mapping penilaian
-        $comments = Comment::whereIn('realisasi_kinerja_id', $realisasiKinerja->pluck('id'))
-            ->where('created_by', session('kasi_id', 1))
-            ->get()
-            ->keyBy('realisasi_kinerja_id');
-
-        // Konversi ke format yang dibutuhkan view
-        try {
-            $tugasStaf = $realisasiKinerja->map(function ($realisasi) use ($comments) {
-                $comment = $comments->get($realisasi->id);
-                
-                // Konversi rating ke penilaian text
-                $penilaian = null;
-                if ($comment) {
-                    switch ($comment->rating) {
-                        case 1:
-                            $penilaian = 'dibawah';
-                            break;
-                        case 2:
-                            $penilaian = 'sesuai';
-                            break;
-                        case 3:
-                            $penilaian = 'melebihi';
-                            break;
-                    }
-                }
-
-                return [
-                    'id' => $realisasi->id,
-                    'nama_staf' => $realisasi->user->name ?? 'Staff',
-                    'nama_tugas' => $realisasi->task->nama_tugas ?? 'Tugas',
-                    'target_kuantitas' => $realisasi->target_kuantitas ?? 0,
-                    'realisasi_kuantitas' => $realisasi->realisasi_kuantitas ?? 0,
-                    'target_waktu' => $realisasi->target_waktu ?? 0,
-                    'realisasi_waktu' => $realisasi->realisasi_waktu ?? 0,
-                    'link_bukti' => $realisasi->link_bukti ?? '#',
-                    'status' => $realisasi->status,
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'staffList' => $staffList,
                     'penilaian' => $penilaian,
-                    'komentar' => $comment ? $comment->komentar : ''
-                ];
-            })->toArray();
-            
-            Log::info('TugasStaf mapping result:', [
-                'count' => count($tugasStaf),
-                'sample' => count($tugasStaf) > 0 ? $tugasStaf[0] : null
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error mapping TugasStaf:', [
-                'error' => $e->getMessage()
-            ]);
-            $tugasStaf = [];
-        }
-        
-        // Jika tidak ada data, gunakan dummy data untuk testing
-        if (empty($tugasStaf)) {
-            Log::info('No data found, using dummy data for testing');
-            $tugasStaf = [
-                [
-                    'id' => 1,
-                    'nama_staf' => 'Andi Saputra',
-                    'nama_tugas' => 'Menyusun laporan bulanan',
-                    'target_kuantitas' => 1,
-                    'realisasi_kuantitas' => 1,
-                    'target_waktu' => 30,
-                    'realisasi_waktu' => 25,
-                    'link_bukti' => 'https://drive.google.com/file/d/123',
-                    'status' => 'dikirim',
-                    'penilaian' => null
-                ],
-                [
-                    'id' => 2,
-                    'nama_staf' => 'Budi Santoso',
-                    'nama_tugas' => 'Membuat presentasi kinerja',
-                    'target_kuantitas' => 2,
-                    'realisasi_kuantitas' => 2,
-                    'target_waktu' => 10,
-                    'realisasi_waktu' => 8,
-                    'link_bukti' => 'https://drive.google.com/file/d/456',
-                    'status' => 'dikirim',
-                    'penilaian' => 'sesuai'
-                ]
-            ];
-        }
+                    'periode' => [
+                        'tahun' => $tahun,
+                        'triwulan' => $triwulan
+                    ]
+                ]);
+            }
 
-        return view('kasi.penilaian', compact('tugasStaf', 'tahun', 'triwulan'));
+            return view('kasi.penilaian', compact('staffList', 'penilaian', 'tahun', 'triwulan'));
+
+        } catch (\Exception $e) {
+            \Log::error('Error in penilaian: ' . $e->getMessage());
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat memuat data: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Terjadi kesalahan saat memuat data');
+        }
     }
 
     /**
-     * Simpan penilaian kinerja
+     * Simpan penilaian staff
      */
     public function simpanPenilaian(Request $request)
     {
         $request->validate([
-            'tugas_id' => 'required|integer',
-            'penilaian' => 'required|in:dibawah,sesuai,melebihi',
-            'komentar' => 'nullable|string'
+            'staff_id' => 'required|exists:users,id',
+            'rating' => 'required|in:1,2,3',
+            'komentar' => 'required|string|max:1000',
+            'tahun' => 'required|integer|min:2020|max:2100',
+            'triwulan' => 'required|in:I,II,III,IV'
         ]);
 
         try {
-            // Konversi penilaian ke nilai numerik
-            $ratingMap = [
-                'dibawah' => 1,
-                'sesuai' => 2,
-                'melebihi' => 3
-            ];
+            $kasiId = session('kasi_id');
             
-            $rating = $ratingMap[$request->penilaian];
+            // Cek apakah staff adalah bawahan dari Kasi ini
+            $kasi = User::with('staffs')->find($kasiId);
+            $isValidStaff = $kasi->staffs->contains('id', $request->staff_id);
             
-            // Ambil realisasi kinerja berdasarkan tugas_id
-            $realisasiKinerja = RealisasiKinerja::find($request->tugas_id);
-            
-            if (!$realisasiKinerja) {
+            if (!$isValidStaff) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tugas tidak ditemukan'
-                ], 404);
+                    'message' => 'Staff tidak valid'
+                ], 403);
             }
-            
-            // Cek apakah sudah ada komentar untuk realisasi ini
-            $existingComment = Comment::where('realisasi_kinerja_id', $realisasiKinerja->id)
-                                                  ->where('created_by', session('kasi_id', 1))
-                                                  ->first();
-            
-            if ($existingComment) {
-                // Update komentar yang sudah ada
-                $existingComment->update([
-                    'rating' => $rating,
-                    'komentar' => $request->komentar ?: $existingComment->komentar
-                ]);
-            } else {
-                // Buat komentar baru
-                Comment::create([
-                    'user_id' => $realisasiKinerja->user_id,
-                    'realisasi_kinerja_id' => $realisasiKinerja->id,
-                    'rating' => $rating,
-                    'komentar' => $request->komentar ?: 'Penilaian kinerja dari Kasi',
-                    'created_by' => session('kasi_id', 1),
-                    'is_read' => false
-                ]);
-            }
-            
-            // Update status realisasi kinerja menjadi 'verif'
-            $realisasiKinerja->update(['status' => 'verif']);
-            
-            Log::info('Penilaian Kinerja berhasil disimpan:', [
-                'tugas_id' => $request->tugas_id,
-                'rating' => $rating,
-                'penilaian' => $request->penilaian,
-                'komentar' => $request->komentar
-            ]);
 
+            // Simpan atau update penilaian
+            $penilaian = PenilaianStaff::updateOrCreate(
+                [
+                    'staff_id' => $request->staff_id,
+                    'kasi_id' => $kasiId,
+                    'tahun' => $request->tahun,
+                    'triwulan' => $request->triwulan
+                ],
+                [
+                    'rating' => $request->rating,
+                    'komentar' => $request->komentar
+                ]
+            );
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Penilaian berhasil disimpan'
+                'message' => 'Penilaian berhasil disimpan',
+                'data' => $penilaian
             ]);
             
         } catch (\Exception $e) {
-            Log::error('Error menyimpan penilaian:', [
+            \Log::error('Error menyimpan penilaian:', [
                 'error' => $e->getMessage(),
                 'data' => $request->all()
             ]);
@@ -334,6 +275,51 @@ class KasiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get riwayat penilaian for a specific period
+     */
+    public function riwayatPenilaian(Request $request)
+    {
+        if (!session('kasi_logged_in')) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $tahun = $request->get('tahun', date('Y'));
+        $triwulan = $request->get('triwulan', 'IV');
+        $kasiId = session('kasi_id');
+
+        // Get all staff assigned to this Kasi
+        $kasi = User::with('staffs')->find($kasiId);
+        $staffIds = $kasi->staffs()->pluck('id');
+
+        // Get comments/ratings for this period
+        $comments = Comment::whereIn('user_id', $staffIds)
+            ->where('created_by', $kasiId)
+            ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
+                $q->where('tahun', $tahun)
+                  ->where('triwulan', $triwulan);
+            })
+            ->with(['user', 'realisasiKinerja'])
+            ->get();
+
+        // Format the data for the view
+        $riwayat = $comments->map(function ($comment) {
+            return [
+                'id' => $comment->user_id,
+                'nama' => $comment->user->name,
+                'penilaian' => $comment->rating,
+                'komentar' => $comment->komentar,
+                'tanggal' => $comment->created_at->format('Y-m-d')
+            ];
+        });
+
+        return response()->json([
+            'riwayat' => $riwayat
+        ]);
+    }
+
+
 
     /**
      * Tampilkan detail tugas
@@ -363,7 +349,31 @@ class KasiController extends Controller
     }
 
     /**
-     * Tampilkan profil KASI
+     * Tampilkan daftar staff yang berada di bawah Kasi ini
+     */
+    public function daftarStaff()
+    {
+        if (!session('kasi_logged_in')) {
+            return redirect('/login/kasi')
+                           ->with('error', 'Silakan login terlebih dahulu.');
+        }
+        
+        $kasiId = session('kasi_id');
+        $kasi = User::find($kasiId);
+        
+        // Ambil semua staff yang berada di bawah Kasi ini
+        $staffList = $kasi->staffs()->get();
+        
+        // Statistik
+        $totalStaff = $staffList->count();
+        $staffAktif = $staffList->where('status', 'aktif')->count();
+        $staffNonaktif = $staffList->where('status', 'nonaktif')->count();
+        
+        return view('kasi.daftar-staff', compact('kasi', 'staffList', 'totalStaff', 'staffAktif', 'staffNonaktif'));
+    }
+
+    /**
+     * Tampilkan halaman profil Kasi
      */
     public function profil()
     {

@@ -363,7 +363,32 @@ class StaffController extends Controller
 
 
     /**
-     * Tampilkan profil Staff
+     * Tampilkan informasi atasan (Kasi) untuk Staff
+     */
+    public function informasiAtasan()
+    {
+        if (!session('staff_logged_in')) {
+            return redirect('/login/staff')
+                           ->with('error', 'Silakan login terlebih dahulu.');
+        }
+        
+        $staffId = session('staff_id');
+        $staff = User::find($staffId);
+        
+        // Ambil informasi Kasi (atasan)
+        $kasi = $staff->kasi;
+        
+        // Jika staff belum memiliki atasan
+        if (!$kasi) {
+            return view('staff.informasi-atasan', compact('staff', 'kasi'))
+                           ->with('warning', 'Anda belum ditugaskan kepada Kasi tertentu.');
+        }
+        
+        return view('staff.informasi-atasan', compact('staff', 'kasi'));
+    }
+
+    /**
+     * Tampilkan halaman profil Staff
      */
     public function profil()
     {

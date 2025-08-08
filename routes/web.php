@@ -20,34 +20,10 @@ Route::get('/staff', function () {
     return view('staff');
 });
 
-// Route demo untuk Staff (bypass login) - untuk testing saja
-Route::get('/staff/demo', function () {
-    // Set session untuk demo
-    session(['staff_logged_in' => true]);
-    session(['staff_name' => 'Demo Staff']);
-    session(['staff_id' => 1]);
-    return redirect()->route('staff.dashboard')
-                   ->with('success', 'Selamat datang, Demo Staff!');
-});
 
-// Route demo untuk KASI (bypass login) - untuk testing saja
-Route::get('/kasi/demo', function () {
-    // Set session untuk demo
-    session(['kasi_logged_in' => true]);
-    session(['kasi_name' => 'Demo KASI']);
-    return redirect()->route('kasi.dashboard')
-                   ->with('success', 'Selamat datang, Demo KASI!');
-});
 
-// Route demo untuk KEPALA (bypass login) - untuk testing saja
-Route::get('/kepala/demo', function () {
-    // Set session untuk demo
-    session(['kepala_logged_in' => true]);
-    session(['kepala_name' => 'Demo KEPALA']);
-    session(['kepala_id' => 1]);
-    return redirect()->route('kepala.dashboard')
-                   ->with('success', 'Selamat datang, Demo KEPALA!');
-});
+
+
 
 Route::get('/login/kepala', [KepalaController::class, 'showLogin']);
 
@@ -89,9 +65,11 @@ Route::middleware(['web'])->group(function () {
 // Routes untuk KASI (dengan database)
 Route::prefix('kasi')->name('kasi.')->group(function () {
     Route::get('/dashboard', [KasiController::class, 'dashboard'])->name('dashboard');
-    Route::get('/penilaian', [KasiController::class, 'penilaian'])->name('penilaian');
-    Route::post('/penilaian/simpan', [KasiController::class, 'simpanPenilaian'])->name('penilaian.simpan');
+    Route::get('/daftar-staff', [KasiController::class, 'daftarStaff'])->name('daftar-staff');
     Route::get('/tugas/{id}/detail', [KasiController::class, 'detailTugas'])->name('tugas.detail');
+    Route::get('/penilaian', [KasiController::class, 'penilaian'])->name('penilaian');
+    Route::get('/penilaian/riwayat', [KasiController::class, 'riwayatPenilaian'])->name('penilaian.riwayat');
+    Route::post('/penilaian/simpan', [KasiController::class, 'simpanPenilaian'])->name('penilaian.simpan');
     Route::get('/profil', [KasiController::class, 'profil'])->name('profil');
     Route::get('/logout', [KasiController::class, 'logout'])->name('logout');
 });
@@ -113,9 +91,7 @@ Route::prefix('staff')->name('staff.')->group(function () {
 Route::prefix('kepala')->name('kepala.')->middleware(['web'])->group(function () {
     Route::get('/dashboard', [KepalaController::class, 'dashboard'])->name('dashboard');
     Route::get('/data-pegawai', [KepalaController::class, 'dataPegawai'])->name('data-pegawai');
-    Route::get('/monitoring-penilaian', [KepalaController::class, 'monitoringPenilaian'])->name('monitoring-penilaian');
-    Route::get('/komentar-umum', [KepalaController::class, 'komentarUmum'])->name('komentar-umum');
-    Route::post('/komentar-umum/simpan', [KepalaController::class, 'simpanKomentarUmum'])->name('komentar-umum.simpan');
+    Route::get('/struktur-organisasi', [KepalaController::class, 'strukturOrganisasi'])->name('struktur-organisasi');
     
     Route::get('/penilaian-kasi', [KepalaController::class, 'penilaianKasi'])->name('penilaian-kasi');
     Route::post('/penilaian-kasi/simpan', [KepalaController::class, 'simpanPenilaianKasi'])->name('penilaian-kasi.simpan');
@@ -126,11 +102,11 @@ Route::prefix('kepala')->name('kepala.')->middleware(['web'])->group(function ()
     Route::get('/logout', [KepalaController::class, 'logout'])->name('logout');
 });
 
-// Routes untuk KEPALA (dengan database)
-Route::prefix('kepala')->name('kepala.')->group(function () {
-    Route::get('/dashboard', [KepalaController::class, 'dashboard'])->name('dashboard');
-    Route::get('/logout', [KepalaController::class, 'logout'])->name('logout');
-});
+// Routes untuk KEPALA (dengan database) - REMOVED DUPLICATE
+// Route::prefix('kepala')->name('kepala.')->group(function () {
+//     Route::get('/dashboard', [KepalaController::class, 'dashboard'])->name('dashboard');
+//     Route::get('/logout', [KepalaController::class, 'logout'])->name('logout');
+// });
 
 // Routes dengan auth (untuk nanti)
 // Route::middleware(['auth'])->group(function () {

@@ -149,132 +149,7 @@ class KepalaController extends Controller
         return view('kepala.data-pegawai', compact('pegawai', 'search', 'role'));
     }
 
-    /**
-     * Tampilkan monitoring penilaian kinerja
-     */
-    public function monitoringPenilaian(Request $request)
-    {
-        if (!session('kepala_logged_in')) {
-            return redirect('/login/kepala');
-        }
 
-        $tahun = $request->get('tahun', date('Y'));
-        $triwulan = $request->get('triwulan', $this->getCurrentQuarter());
-        $kasiId = $request->get('kasi_id');
-
-        // Query penilaian dengan filter dan relasi
-        $query = Comment::with(['realisasiKinerja.task', 'createdBy', 'user.kasi'])
-                       ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
-                           $q->where('tahun', $tahun)
-                             ->where('triwulan', $triwulan);
-                       });
-
-        if ($kasiId) {
-            $query->where('created_by', $kasiId);
-        }
-
-        $penilaian = $query->orderBy('created_at', 'desc')
-                          ->paginate(15);
-
-        // Rata-rata nilai per staff dengan informasi atasan
-        $rataRataStaff = Comment::with(['user.kasi'])
-                               ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
-                                   $q->where('tahun', $tahun)
-                                     ->where('triwulan', $triwulan);
-                               })
-                               ->select('user_id', \DB::raw('AVG(rating) as rata_rata'), \DB::raw('COUNT(*) as total_penilaian'))
-                               ->groupBy('user_id')
-                               ->get();
-
-        // Data untuk filter - hanya kasi yang punya staff
-        $kasiList = User::where('role', 'kasi')->with('staffs')->get()->filter(function($kasi) {
-            return $kasi->staffs->count() > 0;
-        });
-
-        // Statistik per kasi
-        $statistikKasi = [];
-        foreach ($kasiList as $kasi) {
-            $staffIds = $kasi->staffs->pluck('id');
-            $totalPenilaian = Comment::whereIn('user_id', $staffIds)
-                                   ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
-                                       $q->where('tahun', $tahun)
-                                         ->where('triwulan', $triwulan);
-                                   })
-                                   ->count();
-            
-            $rataRata = Comment::whereIn('user_id', $staffIds)
-                              ->whereHas('realisasiKinerja', function($q) use ($tahun, $triwulan) {
-                                  $q->where('tahun', $tahun)
-                                    ->where('triwulan', $triwulan);
-                              })
-                              ->avg('rating');
-
-            $statistikKasi[] = [
-                'kasi' => $kasi,
-                'total_staff' => $kasi->staffs->count(),
-                'total_penilaian' => $totalPenilaian,
-                'rata_rata' => $rataRata ? round($rataRata, 2) : 0
-            ];
-        }
-
-        return view('kepala.monitoring-penilaian', compact(
-            'penilaian',
-            'rataRataStaff',
-            'tahun',
-            'triwulan',
-            'kasiId',
-            'kasiList',
-            'statistikKasi'
-        ));
-    }
-
-    /**
-     * Tampilkan form komentar umum
-     */
-    public function komentarUmum()
-    {
-        if (!session('kepala_logged_in')) {
-            return redirect('/login/kepala');
-        }
-
-        $tahun = request('tahun', date('Y'));
-        $triwulan = request('triwulan', $this->getCurrentQuarter());
-
-        $komentar = KomentarKepala::where('tahun', $tahun)
-                                 ->where('triwulan', $triwulan)
-                                 ->first();
-
-        return view('kepala.komentar-umum', compact('komentar', 'tahun', 'triwulan'));
-    }
-
-    /**
-     * Simpan komentar umum
-     */
-    public function simpanKomentarUmum(Request $request)
-    {
-        if (!session('kepala_logged_in')) {
-            return redirect('/login/kepala');
-        }
-
-        $request->validate([
-            'tahun' => 'required|integer',
-            'triwulan' => 'required|string',
-            'komentar' => 'required|string|max:1000'
-        ]);
-
-        $komentar = KomentarKepala::updateOrCreate(
-            [
-                'tahun' => $request->tahun,
-                'triwulan' => $request->triwulan
-            ],
-            [
-                'komentar' => $request->komentar
-            ]
-        );
-
-        return redirect()->route('kepala.komentar-umum')
-                        ->with('success', 'Komentar umum berhasil disimpan!');
-    }
 
     /**
      * Export laporan PDF
@@ -361,6 +236,44 @@ class KepalaController extends Controller
                 });
             }
         }, "laporan-penilaian-kinerja-{$tahun}-triwulan-{$triwulan}.xlsx");
+    }
+
+
+
+    /**
+     * Tampilkan halaman struktur organisasi
+     */
+    public function strukturOrganisasi()
+    {
+        if (!session('kepala_logged_in')) {
+            return redirect('/login/kepala')
+                           ->with('error', 'Silakan login terlebih dahulu.');
+        }
+        
+        // Ambil semua Kasi dengan relasi staff
+        $kasiList = User::where('role', 'kasi')
+                       ->with('staffs')
+                       ->get();
+        
+        // Statistik
+        $totalKasi = $kasiList->count();
+        $totalStaff = User::where('role', 'staff')->count();
+        $staffTerdaftar = User::where('role', 'staff')
+                             ->whereNotNull('kasi_id')
+                             ->count();
+        $staffBelumDitugaskan = User::where('role', 'staff')
+                                   ->whereNull('kasi_id')
+                                   ->count();
+        
+        // Staff yang belum ditugaskan
+        $staffTanpaKasi = User::where('role', 'staff')
+                             ->whereNull('kasi_id')
+                             ->get();
+        
+        return view('kepala.struktur-organisasi', compact(
+            'kasiList', 'totalKasi', 'totalStaff', 'staffTerdaftar', 
+            'staffBelumDitugaskan', 'staffTanpaKasi'
+        ));
     }
 
     /**
