@@ -16,16 +16,16 @@
             <p class="text-gray-600">Berikan penilaian kinerja kepada Staff berdasarkan periode tertentu</p>
         </div>
 
-        <!-- Filter Periode -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Filter Periode</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                    <!-- Tahun -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+            <!-- Filter Periode -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Filter Periode</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <!-- Tahun -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
                         <select id="tahun-select" onchange="loadData()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                             @php
                                 $currentYear = date('Y');
@@ -34,12 +34,12 @@
                             @for($year = $startYear; $year <= $currentYear; $year++)
                                 <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
                             @endfor
-                        </select>
-                    </div>
-                    
-                    <!-- Triwulan -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Triwulan</label>
+                            </select>
+                        </div>
+                        
+                        <!-- Triwulan -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Triwulan</label>
                         <select id="triwulan-select" onchange="loadData()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                             @php
                                 $currentQuarter = ceil(date('n') / 3);
@@ -53,42 +53,42 @@
                             @foreach($quarters as $num => $quarter)
                                 <option value="{{ $quarter[0] }}" {{ $num == $currentQuarter ? 'selected' : '' }}>{{ $quarter[1] }}</option>
                             @endforeach
-                        </select>
-                    </div>
-                    
+                            </select>
+                        </div>
+                        
                     <!-- Tombol Filter -->
-                    <div>
+                        <div>
                         <button onclick="loadData()" class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
+                                </svg>
                             Filter
-                        </button>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Loading State -->
-        <div id="loading-state" class="hidden">
-            <div class="flex items-center justify-center py-12">
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden">
+                <div class="flex items-center justify-center py-12">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                <span class="ml-3 text-gray-600">Memuat data...</span>
-            </div>
-        </div>
-
-        <!-- Error State -->
-        <div id="error-state" class="hidden">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="text-red-800">Terjadi kesalahan saat memuat data</span>
+                    <span class="ml-3 text-gray-600">Memuat data...</span>
                 </div>
-                <button onclick="loadData()" class="mt-2 text-sm text-red-600 underline hover:text-red-800">Coba lagi</button>
             </div>
-        </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-red-800">Terjadi kesalahan saat memuat data</span>
+                    </div>
+                    <button onclick="loadData()" class="mt-2 text-sm text-red-600 underline hover:text-red-800">Coba lagi</button>
+                </div>
+            </div>
 
         <!-- Daftar Staff -->
         <div id="table-container">
@@ -96,7 +96,7 @@
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h2 class="text-lg font-semibold text-gray-900">Daftar Staff - Periode <span id="periode-display">Aktif</span></h2>
                 </div>
-
+                
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -118,12 +118,12 @@
                                             <div class="flex-shrink-0 h-10 w-10">
                                                 <div class="h-10 w-10 rounded-full bg-purple-500 flex items-center justify-center">
                                                     <span class="text-lg font-medium text-white">{{ substr($staff->name, 0, 1) }}</span>
-                                                </div>
-                                            </div>
+                    </div>
+                </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">{{ $staff->name }}</div>
-                                            </div>
-                                        </div>
+            </div>
+        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $staff->nip }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $staff->jabatan }}</td>
@@ -136,7 +136,7 @@
                                                     {{ $text }}
                                                 </option>
                                             @endforeach
-                                        </select>
+                            </select>
                                     </td>
                                     <td class="px-6 py-4">
                                         <textarea name="komentar" rows="2" class="komentar-input w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200" data-staff-id="{{ $staff->id }}" placeholder="Berikan komentar penilaian...">{{ isset($penilaian[$staff->id]) ? $penilaian[$staff->id]->komentar : '' }}</textarea>
@@ -144,7 +144,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button onclick="simpanPenilaian({{ $staff->id }})" class="simpan-btn text-purple-600 hover:text-purple-900 focus:outline-none">
                                             Simpan
-                                        </button>
+                            </button>
                                     </td>
                                 </tr>
                             @empty
@@ -152,7 +152,7 @@
                                     <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                         Tidak ada staff yang ditugaskan
                                     </td>
-                                </tr>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -219,7 +219,7 @@ function simpanPenilaian(staffId) {
         alert('Silakan pilih rating terlebih dahulu');
         return;
     }
-    
+
     if (!komentarInput.value.trim()) {
         alert('Silakan berikan komentar terlebih dahulu');
         return;
@@ -277,4 +277,4 @@ document.addEventListener('DOMContentLoaded', function() {
     updatePeriodeDisplay();
 });
 </script>
-@endsection
+@endsection 
