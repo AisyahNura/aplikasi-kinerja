@@ -11,10 +11,23 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * KasiController - Controller untuk mengelola fungsi-fungsi KASI (Kepala Seksi)
+ * 
+ * FLOW SISTEM KASI:
+ * 1. Login KASI -> Validasi role -> Set session -> Redirect ke dashboard
+ * 2. Dashboard -> Tampilkan data staff dan statistik kinerja
+ * 3. Daftar Staff -> Tampilkan semua staff yang berada di bawah KASI
+ * 4. Penilaian Staff -> KASI dapat menilai kinerja staff setiap triwulan
+ * 5. Detail Tugas -> Lihat detail tugas yang dikerjakan staff
+ * 6. Profil -> Lihat dan edit profil KASI
+ * 7. Logout -> Hapus session dan redirect ke login
+ */
 class KasiController extends Controller
 {
     /**
      * Tampilkan halaman login KASI
+     * FLOW: User mengakses /login/kasi -> Tampilkan form login
      */
     public function showLogin()
     {
@@ -23,6 +36,12 @@ class KasiController extends Controller
 
     /**
      * Handle login KASI
+     * FLOW: 
+     * 1. Validasi input email dan password
+     * 2. Coba authenticate dengan email dan NIP
+     * 3. Cek role user harus 'kasi'
+     * 4. Set session data (kasi_logged_in, kasi_name, kasi_id)
+     * 5. Redirect ke dashboard dengan pesan sukses
      */
     public function login(Request $request)
     {
@@ -69,6 +88,12 @@ class KasiController extends Controller
 
     /**
      * Tampilkan dashboard KASI
+     * FLOW:
+     * 1. Cek session login KASI
+     * 2. Ambil data KASI dengan relasi staff
+     * 3. Ambil data Kepala untuk informasi struktur
+     * 4. Hitung statistik staff (total, aktif, nonaktif)
+     * 5. Tampilkan dashboard dengan semua data
      */
     public function dashboard()
     {
@@ -117,6 +142,12 @@ class KasiController extends Controller
 
     /**
      * Tampilkan halaman penilaian kinerja staf
+     * FLOW:
+     * 1. Cek session login KASI
+     * 2. Tentukan tahun dan triwulan (default: current)
+     * 3. Ambil semua staff yang berada di bawah KASI ini
+     * 4. Ambil data penilaian yang sudah ada untuk periode tersebut
+     * 5. Tampilkan form penilaian untuk setiap staff
      */
     public function penilaian()
     {
@@ -218,6 +249,11 @@ class KasiController extends Controller
 
     /**
      * Simpan penilaian staff
+     * FLOW:
+     * 1. Validasi input (staff_id, rating, komentar, tahun, triwulan)
+     * 2. Cek apakah staff adalah bawahan dari KASI ini
+     * 3. Simpan atau update penilaian ke database
+     * 4. Return response JSON sukses/error
      */
     public function simpanPenilaian(Request $request)
     {
@@ -278,6 +314,12 @@ class KasiController extends Controller
 
     /**
      * Get riwayat penilaian for a specific period
+     * FLOW:
+     * 1. Cek session login KASI
+     * 2. Ambil tahun dan triwulan dari request
+     * 3. Ambil semua staff yang berada di bawah KASI
+     * 4. Ambil komentar/rating untuk periode tersebut
+     * 5. Format data dan return JSON
      */
     public function riwayatPenilaian(Request $request)
     {
@@ -323,6 +365,7 @@ class KasiController extends Controller
 
     /**
      * Tampilkan detail tugas
+     * FLOW: Tampilkan detail tugas staff dengan data dummy untuk demo
      */
     public function detailTugas($id)
     {
@@ -350,6 +393,12 @@ class KasiController extends Controller
 
     /**
      * Tampilkan daftar staff yang berada di bawah Kasi ini
+     * FLOW:
+     * 1. Cek session login KASI
+     * 2. Ambil data KASI yang sedang login
+     * 3. Ambil semua staff yang berada di bawah KASI (relasi staffs)
+     * 4. Hitung statistik (total, aktif, nonaktif)
+     * 5. Tampilkan view dengan data staff dan statistik
      */
     public function daftarStaff()
     {
@@ -369,11 +418,18 @@ class KasiController extends Controller
         $staffAktif = $staffList->where('status', 'aktif')->count();
         $staffNonaktif = $staffList->where('status', 'nonaktif')->count();
         
+        // Jika field status tidak ada, gunakan default
+        if (!$staffList->first() || !isset($staffList->first()->status)) {
+            $staffAktif = $totalStaff;
+            $staffNonaktif = 0;
+        }
+        
         return view('kasi.daftar-staff', compact('kasi', 'staffList', 'totalStaff', 'staffAktif', 'staffNonaktif'));
     }
 
     /**
      * Tampilkan halaman profil Kasi
+     * FLOW: Tampilkan halaman profil KASI
      */
     public function profil()
     {
@@ -382,6 +438,10 @@ class KasiController extends Controller
 
     /**
      * Logout Kasi
+     * FLOW:
+     * 1. Hapus authentication (Auth::logout)
+     * 2. Hapus session data (kasi_logged_in, kasi_name, kasi_id)
+     * 3. Redirect ke halaman login dengan pesan sukses
      */
     public function logout()
     {

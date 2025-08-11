@@ -8,10 +8,29 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * RealisasiKinerjaController - Controller untuk mengelola realisasi kinerja staff
+ * 
+ * FLOW SISTEM REALISASI KINERJA:
+ * 1. Staff memilih tugas dan periode (tahun/triwulan)
+ * 2. Input realisasi kinerja (kuantitas, waktu, kualitas, bukti)
+ * 3. Simpan sebagai draft atau kirim langsung ke KASI
+ * 4. KASI review dan berikan komentar/penilaian
+ * 5. Staff dapat lihat riwayat dan komentar
+ * 
+ * STATUS REALISASI:
+ * - draft: Belum dikirim ke KASI
+ * - dikirim: Sudah dikirim ke KASI untuk review
+ * - selesai: Sudah direview dan disetujui KASI
+ */
 class RealisasiKinerjaController extends Controller
 {
     /**
      * Tampilkan form realisasi kinerja
+     * FLOW:
+     * 1. Staff memilih tahun dan triwulan
+     * 2. Pilih tugas yang akan diinput realisasinya
+     * 3. Tampilkan form input untuk setiap tugas
      */
     public function create(Request $request)
     {
@@ -34,6 +53,12 @@ class RealisasiKinerjaController extends Controller
 
     /**
      * Simpan realisasi kinerja (batch insert)
+     * FLOW:
+     * 1. Validasi input dari form
+     * 2. Cek apakah sudah ada data untuk periode yang sama
+     * 3. Update data existing atau insert data baru
+     * 4. Set status menjadi 'dikirim'
+     * 5. Commit transaction dan redirect
      */
     public function store(Request $request)
     {

@@ -6,6 +6,26 @@ use App\Http\Controllers\KasiController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\KepalaController;
 
+/**
+ * WEB ROUTES - File routing utama aplikasi kinerja
+ * 
+ * FLOW SISTEM ROUTING:
+ * 1. Welcome Page -> Halaman utama aplikasi
+ * 2. Authentication Routes -> Login untuk setiap role (Staff, KASI, Kepala)
+ * 3. Role-based Routes -> Setiap role memiliki prefix dan middleware sendiri
+ * 4. Realisasi Kinerja Routes -> Fitur input kinerja staff
+ * 5. Logout Routes -> Hapus session dan redirect
+ * 
+ * STRUKTUR ROUTING:
+ * - / -> Welcome page
+ * - /login/{role} -> Login form untuk role tertentu
+ * - /{role}/dashboard -> Dashboard untuk role tertentu
+ * - /{role}/penilaian -> Fitur penilaian kinerja
+ * - /{role}/profil -> Profil user
+ * - /{role}/logout -> Logout untuk role tertentu
+ */
+
+// Route utama aplikasi
 Route::get('/', function () {
     return view('welcome');
 });
@@ -20,41 +40,32 @@ Route::get('/staff', function () {
     return view('staff');
 });
 
+// Route untuk halaman test (tanpa auth)
+Route::get('/test', function () {
+    return 'Aplikasi berjalan dengan baik!';
+});
 
-
-
-
-
+// AUTHENTICATION ROUTES
+// FLOW: User mengakses halaman login sesuai rolenya
 Route::get('/login/kepala', [KepalaController::class, 'showLogin']);
-
 Route::get('/login/kasi', [KasiController::class, 'showLogin']);
-
 Route::get('/login/staff', [StaffController::class, 'showLogin']);
 
-// Route untuk login KASI
+// Route untuk proses login setiap role
+// FLOW: Form login -> Validasi -> Set session -> Redirect ke dashboard
 Route::post('/kasi/login', [KasiController::class, 'login'])->name('kasi.login');
-
-// Route untuk login STAFF
 Route::post('/staff/login', [StaffController::class, 'login'])->name('staff.login');
-
-// Route untuk login KASI
-Route::post('/kasi/login', [KasiController::class, 'login'])->name('kasi.login');
-
-// Route untuk login KEPALA
 Route::post('/kepala/login', [KepalaController::class, 'login'])->name('kepala.login');
 
 // General logout route
+// FLOW: Hapus auth -> Hapus session -> Redirect ke home
 Route::post('/logout', function () {
     Auth::logout();
     return redirect('/');
 })->name('logout');
 
-// Route test tanpa auth
-Route::get('/test', function () {
-    return 'Aplikasi berjalan dengan baik!';
-});
-
-// Routes untuk Realisasi Kinerja (dengan database)
+// REALISASI KINERJA ROUTES
+// FLOW: Staff input kinerja -> Simpan draft -> Kirim ke KASI
 Route::middleware(['web'])->group(function () {
     Route::get('/realisasi-kinerja', [RealisasiKinerjaController::class, 'index'])->name('realisasi-kinerja.index');
     Route::get('/realisasi-kinerja/create', [RealisasiKinerjaController::class, 'create'])->name('realisasi-kinerja.create');
@@ -62,7 +73,8 @@ Route::middleware(['web'])->group(function () {
     Route::post('/realisasi-kinerja/draft', [RealisasiKinerjaController::class, 'storeDraft'])->name('realisasi-kinerja.store-draft');
 });
 
-// Routes untuk KASI (dengan database)
+// KASI ROUTES
+// FLOW: KASI login -> Dashboard -> Kelola staff -> Penilaian kinerja
 Route::prefix('kasi')->name('kasi.')->group(function () {
     Route::get('/dashboard', [KasiController::class, 'dashboard'])->name('dashboard');
     Route::get('/daftar-staff', [KasiController::class, 'daftarStaff'])->name('daftar-staff');
@@ -74,7 +86,8 @@ Route::prefix('kasi')->name('kasi.')->group(function () {
     Route::get('/logout', [KasiController::class, 'logout'])->name('logout');
 });
 
-// Routes untuk STAFF (dengan database)
+// STAFF ROUTES
+// FLOW: Staff login -> Dashboard -> Input kinerja -> Lihat komentar
 Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
     Route::get('/kinerja-saya', [StaffController::class, 'kinerjaSaya'])->name('kinerja-saya');
@@ -87,7 +100,8 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/logout', [StaffController::class, 'logout'])->name('logout');
 });
 
-// Routes untuk KEPALA (dengan database)
+// KEPALA ROUTES
+// FLOW: Kepala login -> Dashboard -> Lihat struktur -> Penilaian KASI
 Route::prefix('kepala')->name('kepala.')->middleware(['web'])->group(function () {
     Route::get('/dashboard', [KepalaController::class, 'dashboard'])->name('dashboard');
     Route::get('/data-pegawai', [KepalaController::class, 'dataPegawai'])->name('data-pegawai');
@@ -101,12 +115,6 @@ Route::prefix('kepala')->name('kepala.')->middleware(['web'])->group(function ()
     Route::get('/profil', [KepalaController::class, 'profil'])->name('profil');
     Route::get('/logout', [KepalaController::class, 'logout'])->name('logout');
 });
-
-// Routes untuk KEPALA (dengan database) - REMOVED DUPLICATE
-// Route::prefix('kepala')->name('kepala.')->group(function () {
-//     Route::get('/dashboard', [KepalaController::class, 'dashboard'])->name('dashboard');
-//     Route::get('/logout', [KepalaController::class, 'logout'])->name('logout');
-// });
 
 // Routes dengan auth (untuk nanti)
 // Route::middleware(['auth'])->group(function () {

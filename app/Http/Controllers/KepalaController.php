@@ -14,10 +14,30 @@ use Illuminate\Support\Facades\DB;
 use PDF;
 use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * KepalaController - Controller untuk mengelola fungsi-fungsi KEPALA
+ * 
+ * FLOW SISTEM KEPALA:
+ * 1. Login Kepala -> Validasi role -> Set session -> Redirect ke dashboard
+ * 2. Dashboard -> Tampilkan statistik umum dan data terbaru
+ * 3. Data Pegawai -> Lihat semua KASI dan Staff dalam organisasi
+ * 4. Struktur Organisasi -> Lihat hierarki organisasi
+ * 5. Penilaian KASI -> Kepala dapat menilai kinerja KASI
+ * 6. Export Data -> Generate laporan PDF/Excel
+ * 7. Profil -> Lihat dan edit profil Kepala
+ * 8. Logout -> Hapus session dan redirect ke login
+ * 
+ * PERAN KEPALA:
+ * - Super admin yang dapat melihat semua data
+ * - Menilai kinerja KASI
+ * - Generate laporan organisasi
+ * - Monitoring kinerja keseluruhan
+ */
 class KepalaController extends Controller
 {
     /**
      * Tampilkan halaman login Kepala
+     * FLOW: User mengakses /login/kepala -> Tampilkan form login
      */
     public function showLogin()
     {
@@ -26,6 +46,12 @@ class KepalaController extends Controller
 
     /**
      * Handle login Kepala
+     * FLOW: 
+     * 1. Validasi input email dan password
+     * 2. Coba authenticate dengan email dan NIP
+     * 3. Cek role user harus 'kepala'
+     * 4. Set session data (kepala_logged_in, kepala_name, kepala_id)
+     * 5. Redirect ke dashboard dengan pesan sukses
      */
     public function login(Request $request)
     {
@@ -69,6 +95,12 @@ class KepalaController extends Controller
 
     /**
      * Tampilkan dashboard Kepala
+     * FLOW:
+     * 1. Cek session login Kepala
+     * 2. Ambil statistik umum (total KASI, Staff, Penilaian, Realisasi)
+     * 3. Ambil data KASI dan Staff terbaru
+     * 4. Ambil penilaian terbaru
+     * 5. Tampilkan dashboard dengan semua data
      */
     public function dashboard()
     {

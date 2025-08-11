@@ -1,46 +1,56 @@
+{{-- Layout khusus untuk role KASI dengan sidebar navigation --}}
+{{-- Template dengan mobile responsive dan sidebar menu --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    {{-- Meta tags untuk charset dan responsive viewport --}}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- CSRF token untuk AJAX requests --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- Title dengan suffix Kasi Panel --}}
     <title>{{ config('app.name', 'Laravel') }} - Kasi Panel</title>
     
-    <!-- Tailwind CSS -->
+    {{-- CDN Tailwind CSS untuk styling --}}
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Fonts -->
+    {{-- Google Fonts Figtree untuk typography --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     
-    <!-- Scripts -->
+    {{-- Vite assets untuk CSS dan JS custom --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    {{-- JavaScript untuk mobile menu functionality --}}
     <script>
-        // Mobile menu functionality
+        {{-- Mobile menu functionality dengan event listeners --}}
         document.addEventListener('DOMContentLoaded', function() {
+            {{-- Get DOM elements untuk mobile menu --}}
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebar-overlay');
             
+            {{-- Function untuk membuka sidebar mobile --}}
             function openSidebar() {
                 sidebar.classList.remove('-translate-x-full');
                 sidebarOverlay.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             }
             
+            {{-- Function untuk menutup sidebar mobile --}}
             function closeSidebar() {
                 sidebar.classList.add('-translate-x-full');
                 sidebarOverlay.classList.add('hidden');
                 document.body.style.overflow = '';
             }
             
+            {{-- Event listeners untuk tombol mobile menu --}}
             mobileMenuButton.addEventListener('click', openSidebar);
             closeSidebarButton.addEventListener('click', closeSidebar);
             sidebarOverlay.addEventListener('click', closeSidebar);
             
-            // Close sidebar when clicking on navigation links on mobile
+            {{-- Auto close sidebar saat klik navigation links di mobile --}}
             const navLinks = sidebar.querySelectorAll('a');
             navLinks.forEach(link => {
                 link.addEventListener('click', function() {
@@ -50,7 +60,7 @@
                 });
             });
             
-            // Close sidebar on window resize if screen becomes large
+            {{-- Auto close sidebar saat resize window ke desktop --}}
             window.addEventListener('resize', function() {
                 if (window.innerWidth >= 1024) {
                     closeSidebar();
@@ -59,40 +69,55 @@
         });
     </script>
 </head>
+
+{{-- Body dengan font sans dan background abu-abu --}}
 <body class="font-sans antialiased bg-gray-50">
+    {{-- Flex container untuk sidebar dan main content --}}
     <div class="flex h-screen">
-        <!-- Mobile menu button -->
+        
+        {{-- Mobile menu button - hanya tampil di mobile --}}
         <div class="lg:hidden fixed top-4 left-4 z-50">
+            {{-- Button hamburger menu dengan hover effects --}}
             <button id="mobile-menu-button" class="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+                {{-- Icon hamburger menu --}}
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
         </div>
 
-        <!-- Sidebar -->
+        {{-- Sidebar navigation dengan responsive behavior --}}
         <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out">
+            
+            {{-- Header sidebar dengan logo dan close button --}}
             <div class="flex items-center justify-between h-16 px-4 sm:px-6 border-b border-gray-200">
                 <div class="flex items-center">
+                    {{-- Icon KASI dengan background biru --}}
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
+                    {{-- Text Kasi Panel --}}
                     <span class="ml-3 text-base sm:text-lg font-semibold text-gray-900">Kasi Panel</span>
                 </div>
-                <!-- Close button for mobile -->
+                
+                {{-- Close button untuk mobile - hanya tampil di mobile --}}
                 <button id="close-sidebar" class="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                    {{-- Icon close X --}}
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
             
+            {{-- Navigation menu dengan links --}}
             <nav class="mt-6 px-3">
                 <div class="space-y-1">
+                    {{-- Link Dashboard dengan active state --}}
                     <a href="{{ route('kasi.dashboard') }}" 
                        class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ request()->routeIs('kasi.dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                        {{-- Icon dashboard --}}
                         <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
@@ -129,12 +154,12 @@
             </nav>
         </div>
 
-        <!-- Overlay for mobile -->
+        {{-- Overlay for mobile --}}
         <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-30 lg:hidden hidden"></div>
 
-        <!-- Main content -->
+        {{-- Main content --}}
         <div class="flex-1 flex flex-col lg:ml-0">
-            <!-- Top navigation -->
+            {{-- Top navigation --}}
             <div class="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center space-x-3">
@@ -160,7 +185,7 @@
                 </div>
             </div>
 
-            <!-- Flash Messages -->
+            {{-- Flash Messages --}}
             @if(session('success'))
                 <div class="bg-green-50 border-l-4 border-green-400 p-4 mx-4 mt-4">
                     <div class="flex">
@@ -191,19 +216,20 @@
                 </div>
             @endif
 
-            <!-- Page content -->
+            {{-- Page content --}}
             <main class="flex-1 overflow-y-auto">
                 @yield('content')
             </main>
         </div>
     </div>
     
+    {{-- JavaScript untuk sidebar visibility --}}
     <script>
-        // Ensure proper initialization
+        {{-- Ensure proper initialization --}}
         document.addEventListener('DOMContentLoaded', function() {
             console.log('KASI Layout loaded successfully');
             
-            // Ensure sidebar is always visible
+            {{-- Ensure sidebar is always visible --}}
             const sidebar = document.getElementById('sidebar');
             if (sidebar) {
                 sidebar.classList.remove('-translate-x-full');
@@ -216,7 +242,7 @@
                 console.log('Sidebar visibility ensured');
             }
             
-            // Ensure main layout structure is maintained
+            {{-- Ensure main layout structure is maintained --}}
             const mainContainer = document.querySelector('body > div:first-child');
             if (mainContainer) {
                 mainContainer.style.display = 'flex';
@@ -224,7 +250,7 @@
             }
         });
         
-        // Ensure sidebar visibility on any DOM changes
+        {{-- Ensure sidebar visibility on any DOM changes --}}
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
@@ -239,7 +265,7 @@
             });
         });
         
-        // Start observing when DOM is ready
+        {{-- Start observing when DOM is ready --}}
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar) {

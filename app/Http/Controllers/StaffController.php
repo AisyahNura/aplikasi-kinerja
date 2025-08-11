@@ -12,10 +12,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * StaffController - Controller untuk mengelola fungsi-fungsi STAFF
+ * 
+ * FLOW SISTEM STAFF:
+ * 1. Login Staff -> Validasi role -> Set session -> Redirect ke dashboard
+ * 2. Dashboard -> Tampilkan statistik kinerja dan tugas
+ * 3. Kinerja Saya -> Input realisasi kinerja harian/bulanan
+ * 4. Simpan Realisasi -> Simpan draft kinerja ke database
+ * 5. Kirim Realisasi -> Kirim kinerja ke KASI untuk review
+ * 6. Komentar -> Lihat komentar dan penilaian dari KASI
+ * 7. Profil -> Lihat dan edit profil Staff
+ * 8. Logout -> Hapus session dan redirect ke login
+ */
 class StaffController extends Controller
 {
     /**
      * Tampilkan halaman login Staff
+     * FLOW: User mengakses /login/staff -> Tampilkan form login
      */
     public function showLogin()
     {
@@ -24,6 +38,12 @@ class StaffController extends Controller
 
     /**
      * Handle login Staff
+     * FLOW: 
+     * 1. Validasi input email dan password
+     * 2. Coba authenticate dengan email dan NIP
+     * 3. Cek role user harus 'staff'
+     * 4. Set session data (staff_logged_in, staff_name, staff_id)
+     * 5. Redirect ke dashboard dengan pesan sukses
      */
     public function login(Request $request)
     {
@@ -70,6 +90,12 @@ class StaffController extends Controller
 
     /**
      * Tampilkan dashboard Staff
+     * FLOW:
+     * 1. Cek session login Staff
+     * 2. Ambil data Staff dengan relasi KASI
+     * 3. Tentukan tahun dan triwulan (default: current)
+     * 4. Ambil statistik kinerja dan tugas
+     * 5. Tampilkan dashboard dengan semua data
      */
     public function dashboard(Request $request)
     {
@@ -354,37 +380,6 @@ class StaffController extends Controller
                ->update(['is_read' => true]);
         
         return response()->json(['success' => true]);
-    }
-
-
-
-
-
-
-
-    /**
-     * Tampilkan informasi atasan (Kasi) untuk Staff
-     */
-    public function informasiAtasan()
-    {
-        if (!session('staff_logged_in')) {
-            return redirect('/login/staff')
-                           ->with('error', 'Silakan login terlebih dahulu.');
-        }
-        
-        $staffId = session('staff_id');
-        $staff = User::find($staffId);
-        
-        // Ambil informasi Kasi (atasan)
-        $kasi = $staff->kasi;
-        
-        // Jika staff belum memiliki atasan
-        if (!$kasi) {
-            return view('staff.informasi-atasan', compact('staff', 'kasi'))
-                           ->with('warning', 'Anda belum ditugaskan kepada Kasi tertentu.');
-        }
-        
-        return view('staff.informasi-atasan', compact('staff', 'kasi'));
     }
 
     /**

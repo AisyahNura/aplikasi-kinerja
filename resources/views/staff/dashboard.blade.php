@@ -1,42 +1,53 @@
+{{-- Halaman dashboard staff - ringkasan kinerja dan aktivitas --}}
+{{-- Template dengan rating system dan statistik kinerja --}}
 @extends('layouts.staff')
 
+{{-- Section content untuk konten utama --}}
 @section('content')
+
+{{-- Custom CSS untuk rating system dengan 3 level --}}
 <style>
-/* Rating styles untuk 3 level */
+{{-- Rating styles untuk 3 level dengan flexbox --}}
 .rating-3 {
     display: inline-flex;
     align-items: center;
     gap: 2px;
 }
 
+{{-- Style untuk bintang rating dengan warna biru --}}
 .rating-star {
     font-size: 1.25rem;
     color: #3B82F6;
 }
 
+{{-- Style untuk bintang kosong dengan warna abu-abu --}}
 .rating-star.empty {
     color: #D1D5DB;
 }
 
+{{-- Text rating dengan styling --}}
 .rating-text {
     font-size: 0.875rem;
     color: #6B7280;
     margin-left: 8px;
 }
 
-/* Rating colors berdasarkan nilai */
+{{-- Warna merah untuk rating level 1 (rendah) --}}
 .rating-star.rating-1 {
     color: #EF4444;
 }
 
+{{-- Warna orange untuk rating level 2 (sedang) --}}
 .rating-star.rating-2 {
     color: #F59E0B;
 }
 
+{{-- Warna hijau untuk rating level 3 (tinggi) --}}
 .rating-star.rating-3 {
     color: #10B981;
 }
 
+{{-- Label rating dengan background dan padding --}}
 .rating-label {
     font-size: 0.75rem;
     font-weight: 600;
@@ -45,59 +56,77 @@
     margin-left: 8px;
 }
 
+{{-- Background merah untuk rating level 1 --}}
 .rating-label-1 {
     background-color: #FEE2E2;
     color: #EF4444;
 }
 
+{{-- Background orange untuk rating level 2 --}}
 .rating-label-2 {
     background-color: #FEF3C7;
     color: #F59E0B;
 }
 
+{{-- Background hijau untuk rating level 3 --}}
 .rating-label-3 {
     background-color: #D1FAE5;
     color: #10B981;
 }
 </style>
 
+{{-- Container utama dengan responsive padding --}}
 <div class="p-3 sm:p-6">
     <div class="max-w-7xl mx-auto">
-        <!-- Header E-Kinerja Style -->
+        
+        {{-- Header E-Kinerja dengan style resmi --}}
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 sm:mb-6">
             <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                {{-- Flex container untuk logo dan periode --}}
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                    
+                    {{-- Left side: Logo dan nama sistem --}}
                     <div class="flex items-center">
+                        {{-- Icon building dengan background hijau --}}
                         <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 sm:w-6 sm:w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
                         </div>
+                        {{-- Nama sistem dan deskripsi --}}
                         <div>
                             <h1 class="text-lg sm:text-xl font-bold text-gray-900">E-KINERJA</h1>
                             <p class="text-xs sm:text-sm text-gray-600">Sistem Informasi Kinerja Pegawai</p>
                         </div>
                     </div>
+                    
+                    {{-- Right side: Info periode penilaian --}}
                     <div class="text-left sm:text-right">
                         <p class="text-xs sm:text-sm font-medium text-gray-900">PERIODE PENILAIAN</p>
+                        {{-- Periode dinamis berdasarkan tahun sekarang --}}
                         <p class="text-xs sm:text-sm text-gray-600">1 Januari s.d. 31 Desember Tahun {{ date('Y') }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Header -->
+        {{-- Header halaman dashboard --}}
         <div class="mb-4 sm:mb-6">
+            {{-- Judul dashboard staff --}}
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">Dashboard STAFF</h1>
+            {{-- Deskripsi halaman --}}
             <p class="text-sm sm:text-base text-gray-600">Ringkasan kinerja dan aktivitas terbaru</p>
         </div>
 
-        <!-- Profil Staff dan Atasan -->
+        {{-- Grid untuk profil staff dan atasan --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
-            <!-- Profil Staff -->
+            
+            {{-- Card profil staff dengan info personal --}}
             <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+                {{-- Header card dengan icon user --}}
                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {{-- Icon user dengan warna biru --}}
+                    <svg class="w-4 h-4 sm:w-5 sm:w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
                     PEGAWAI YANG DINILAI
@@ -126,7 +155,7 @@
                 </div>
             </div>
 
-            <!-- Profil Atasan -->
+            {{-- Profil Atasan --}}
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,9 +189,9 @@
             </div>
         </div>
 
-        <!-- Statistik Cards -->
+        {{-- Statistik Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Tugas -->
+            {{-- Total Tugas --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -179,7 +208,7 @@
                 </div>
             </div>
 
-            <!-- Draft -->
+            {{-- Draft --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -196,7 +225,7 @@
                 </div>
             </div>
 
-            <!-- Menunggu -->
+            {{-- Menunggu --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -213,7 +242,7 @@
                 </div>
             </div>
 
-            <!-- Sudah Dinilai -->
+            {{-- Sudah Dinilai --}}
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -231,7 +260,7 @@
             </div>
         </div>
 
-        <!-- Triwulan Aktif -->
+        {{-- Triwulan Aktif --}}
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -252,7 +281,7 @@
 
 
 
-        <!-- Status Kinerja -->
+        {{-- Status Kinerja --}}
         <div class="bg-white rounded-lg shadow p-6 mb-8">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Kinerja</h3>
             <div class="space-y-4">
@@ -286,7 +315,7 @@
             </div>
         </div>
 
-        <!-- Komentar dari Atasan -->
+        {{-- Komentar dari Atasan --}}
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-semibold text-gray-900">Komentar dari Atasan</h3>
@@ -295,7 +324,7 @@
                 </a>
             </div>
 
-            <!-- Filter Tahun & Triwulan -->
+            {{-- Filter Tahun & Triwulan --}}
             <div class="mb-6">
                 <form method="GET" action="{{ route('staff.dashboard') }}" class="flex flex-wrap gap-4 items-end">
                     <div>
@@ -325,22 +354,22 @@
                 </form>
             </div>
 
-            <!-- Daftar Komentar -->
+            {{-- Daftar Komentar --}}
             @if($filteredComments->count() > 0)
                 <div class="space-y-6">
                     @foreach($filteredComments as $comment)
                         <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
-                            <!-- Header Komentar -->
+                            {{-- Header Komentar --}}
                             <div class="flex items-start justify-between mb-4">
                                 <div class="flex items-center space-x-3">
-                                    <!-- Avatar -->
+                                    {{-- Avatar --}}
                                     <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
                                     </div>
                                     
-                                    <!-- Nama dan Rating -->
+                                    {{-- Nama dan Rating --}}
                                     <div>
                                         <h4 class="text-blue-600 font-semibold text-sm">{{ $comment->createdBy->name }}</h4>
                                         <div class="flex items-center mt-1">
@@ -376,16 +405,16 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Tanggal -->
+                                {{-- Tanggal --}}
                                 <span class="text-xs text-gray-500">{{ $comment->created_at->format('d M Y H:i') }}</span>
                             </div>
 
-                            <!-- Isi Komentar -->
+                            {{-- Isi Komentar --}}
                             <div class="bg-gray-50 rounded-lg p-4">
                                 <p class="text-sm text-gray-700 leading-relaxed">{{ $comment->komentar }}</p>
                             </div>
 
-                            <!-- Tugas yang dikomentari -->
+                            {{-- Tugas yang dikomentari --}}
                             @if(isset($comment->realisasiKinerja->task))
                                 <div class="mt-3 text-xs text-gray-500">
                                     <span class="font-medium">Tugas:</span> {{ $comment->realisasiKinerja->task->nama_tugas }}
@@ -405,7 +434,7 @@
             @endif
         </div>
 
-        <!-- Quick Actions -->
+        {{-- Quick Actions --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mt-6 sm:mt-8">
             <a href="{{ route('staff.kinerja-saya') }}" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
                 <div class="flex items-center">
